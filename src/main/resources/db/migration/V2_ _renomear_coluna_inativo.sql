@@ -1,0 +1,1 @@
+ALTER TABLE employee RENAME COLUMN inativo TO active;
