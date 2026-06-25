@@ -4,10 +4,15 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.controle.entities.Budget;
 import com.controle.entities.Employee;
+import com.controle.exception.BudgetDateBadRequestException;
+import com.controle.exception.BudgetEmployeeNotFoundException;
 import com.controle.exception.BudgetNotFoundException;
 import com.controle.exception.EmployeeNotFoundException;
 import com.controle.infrastructure.dto.BudgetDto;
@@ -41,10 +46,20 @@ public class BudgetService {
 				.vehiclePlate(dto.getVehiclePlate()).serviceDate(dto.getServiceDate())
 				.descriptionService(dto.getDescriptionService()).status(BudgetStatus.CREATED).employee(emp).build();
 
+		// addEmployee(dto.getEmployeeIds(), budget);
+
 		log.info("Orçamento criado com sucesso:");
 		return repository.save(budget);
 
 	}
+
+//	private void addEmployee(Set<String> employeeIds, Budget budget) {
+//	 Set<String> employeeIdsNotNull = Optional.ofNullable(employeeIds).orElseThrow(Set.of());
+//	   Set<Employee> employees = employeeIdsNotNull.stream().map(id -> employeeRepository.findAllByName(id)).collect(toList());
+//			 
+//			 budget.setEmployee();
+	// budget.setMployee(employees);
+//	}
 
 	@Transactional(readOnly = true)
 	public Budget loadBudget(String budgetId) {
@@ -62,10 +77,12 @@ public class BudgetService {
 		budget.setServiceDate(dto.getServiceDate());
 		budget.setDescriptionService(dto.getDescriptionService());
 
+		// addEmployee(dto.getEmployeeIds(), budget);
+
 		return budget;
 	}
-	
-	//deleta tudo do banco
+
+	// deleta tudo do banco
 	@Transactional
 	public void deleteBudget(String id) {
 		Budget budget = loadBudget(id);
@@ -94,34 +111,77 @@ public class BudgetService {
 		budget.setStatus(BudgetStatus.APPROVED);
 	}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+																																							  //
+//	@Transactional(readOnly = true)  																														  //
+//	public List<BudgetDto> findByEmployeeName(String name) {  																								  //
+//		List<Budget> budgets = repository.findByEmployeeName(name);  																						  //
+//		List<BudgetDto> dtos = budgets.stream().map(BudgetDto::create).toList(); 																			  //
+//																																							  //
+//		if (dtos.isEmpty()) {																																  //
+//			log.info("Funcionário não existe: {}", name);																									  //
+//			return dtos;																																      //
+//		}																																					  //		
+//																																							  //
+//		log.info("Orçamento funcionário: {}", name);																										  //
+//		return dtos;																																		  //
+//	}																																					      //
+																																							  //
+	@Transactional(readOnly = true)																													          //
+	public Page<BudgetDto> findByEmployeeName(String name, Pageable page) { 																				  //
+																																							  //
+		Page<Budget> budget = repository.findByEmployeeName(name, page);																			          //
+		log.info("Lista de orçamntos por nome do funcioário:");																																					  //
+		if (budget.isEmpty()) {																																  //
+			throw new BudgetEmployeeNotFoundException(name);																			                      //
+																																							  //
+		} else { 																																			  //
+			log.info("Ordem De Serviço por funcionário(s): {}", name);														 											  //
+																												                                     		  //
+		} 																																					  //
+			return budget.map(BudgetDto::create); 																											  //
+		 																												                            	      //
+	} 																																						  //
+																																							  //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+
+//	@Transactional
+//	public List<BudgetDto> findByServiceDate(LocalDate serviceDate) {
+//
+//		List<Budget> budgets = repository.findByServiceDate(serviceDate);
+//		List<BudgetDto> dtos = budgets.stream().map(BudgetDto::create).toList();
+//		log.info("Lista por data:");
+//		return dtos;
+//	}
+	
 	@Transactional(readOnly = true)
-	public List<BudgetDto> findByEmployeeName(String name) {
-		List<Budget> budgets = repository.findByEmployeeName(name);
-		List<BudgetDto> dtos = budgets.stream().map(BudgetDto::create).toList();
+	public Page<BudgetDto> findByServiceDate(LocalDate serviceDate, Pageable page) {
 		
-		if (dtos.isEmpty()) {
-			log.info("Funcionário não existe: {}", name);
-			return dtos;
+		// 1. VALIDAÇÃO DE NEGÓCIO (O Escudo)
+	    // Se a data for futura, estoura o 400 Bad Request e encerra aqui mesmo. O banco nem é incomodado.
+		if (serviceDate.isAfter(LocalDate.now())) {
+			throw new BudgetDateBadRequestException(serviceDate);
+		}else {
+			log.info("Ordem De Serviço por data:");
 		}
 		
-		log.info("Orçamento funcionário: {}", name);
-		return dtos;
+		// 2. BUSCA NO BANCO DE DADOS
+	    // Só chega nessa linha se a data for válida (hoje ou passado)
+		Page<Budget> budget = repository.findByServiceDate(serviceDate, page);
+		
+		// 3. VALIDAÇÃO DE RESULTADO (Opcional, para o seu 404)
+	    // Se a data for válida, mas não tiver nenhuma OS registrada no dia
+	    if (budget.isEmpty()) {
+	        // Pode ser a BudgetNotFoundException ou outra de sua preferência
+	        throw new BudgetNotFoundException("Nenhum orçamento encontrado para a data: " + serviceDate); 
+	    }
+		
+		return budget.map(BudgetDto::create);
 	}
 
-	@Transactional(readOnly = true)
-	public List<BudgetDto> findByServiceDate(LocalDate serviceDate) {
-
-		List<Budget> budgets = repository.findByServiceDate(serviceDate);
-		List<BudgetDto> dtos = budgets.stream().map(BudgetDto::create).toList();
-		log.info("Lista por data:");
-		return dtos;
-	}
-//	public List<Budget> findByServiceDate(LocalDate serviceDate) {
-//		
-//		return repository.findByServiceDate(serviceDate);
-//	}
-
-//	@Transactional(readOnly = true)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	
+//	@Transactional()
 //	public List<Budget> FindByCompanyName(String Companyname) {
 //		return repository.findByCompanyName(Companyname);
 //	}
@@ -137,35 +197,10 @@ public class BudgetService {
 			log.info("Funcionário não existe: {}", companyName);
 			return dtos;
 		}
-		
+
 		log.info("Orçamento pelo nome da empresa:");
 		return dtos;
 
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

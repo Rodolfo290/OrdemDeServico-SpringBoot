@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "employee")
@@ -24,26 +25,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 //funcionario
 public class Employee {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "id", nullable = false, length = 36)
 	private String id;
-	
+
 	@Column(name = "employeeName", nullable = false, length = 80)
 	private String name;
-	
+
 	@Column(name = "email", nullable = false, length = 100)
 	private String email;
-	
+
 	@Builder.Default
 	@Column(name = "active", nullable = false)
 	private boolean active = true;
 
-
 	@OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+	@ToString.Exclude // Impede o loop infinito no toString
 	private List<Budget> budgets = new ArrayList<>();
-	
-	 
-	
+
 }

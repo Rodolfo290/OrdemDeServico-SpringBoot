@@ -20,7 +20,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
 	List<Employee> findAllByName(String name);
 
 	List<Employee> findByNameContainingIgnoreCaseAndActiveTrue(String name);
+
 	List<Employee> findByActiveFalse();
+
 	List<Employee> findByActiveTrue();
 //	List<Employee> findByServiceDate(LocalDate serviceDate);
 //	List<Employee> findByCompanyName(String companyName);

@@ -59,7 +59,4 @@ public class Budget {
 	@JoinColumn(name = "employee_id", nullable = false) // apontando para o funcionario
 	private Employee employee;
 
-	
-	
-	
 }

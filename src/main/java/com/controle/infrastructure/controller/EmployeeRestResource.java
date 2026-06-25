@@ -61,16 +61,15 @@ public class EmployeeRestResource {
 		return ResponseEntity.noContent().build();
 
 	}
-	
+
 	@PutMapping("/{id}/deactivate")
-	public ResponseEntity<EmployeeDto> deactivateEmployee(@PathVariable String id){
-		
+	public ResponseEntity<EmployeeDto> deactivateEmployee(@PathVariable String id) {
+
 		service.deactivateEmployee(id);
 		return ResponseEntity.noContent().build();
-		
+
 	}
-	
-	
+
 //	@GetMapping
 //	public ResponseEntity<List<EmployeeDto>> listAll(){
 //		List<Employee> employees = service.listAll();
@@ -81,52 +80,34 @@ public class EmployeeRestResource {
 //	
 	@GetMapping
 	public ResponseEntity<List<EmployeeDto>> listAll() {
-	    // Ele só pede e entrega. Simples assim.
-	    return ResponseEntity.ok(service.listAll());
+		// Ele só pede e entrega. Simples assim.
+		return ResponseEntity.ok(service.listAll());
 	}
-	
-	
-	
+
 	@GetMapping("/employee")
-	public ResponseEntity<List<EmployeeDto>> findByEmployeeName(@RequestParam String name){
-		
-		
-		
+	public ResponseEntity<List<EmployeeDto>> findByEmployeeName(@RequestParam String name) {
+
 //		List<Employee> emplyoee = service.findByEmployeeName(employeeName);
 //		List<EmployeeDto> dtos = emplyoee.stream().map(EmployeeDto::create).toList();
 		return ResponseEntity.ok(service.findAllByName(name));
-		
+
 	}
-	
 
 	@GetMapping("/{name}/employee")
-	public ResponseEntity<List<EmployeeDto>> loadEmployeeActive(@PathVariable String name){
+	public ResponseEntity<List<EmployeeDto>> loadEmployeeActive(@PathVariable String name) {
 //		service.loadEmployeeActive(name);
 //		return ResponseEntity.noContent().build();
 		return ResponseEntity.ok(service.loadEmployeeActive(name));
 	}
-	
+
 	@GetMapping("/activefalse")
-	public ResponseEntity<List<EmployeeDto>> findByActiveFalse(){
+	public ResponseEntity<List<EmployeeDto>> findByActiveFalse() {
 		return ResponseEntity.ok(service.findByActiveFalse());
 	}
-	
-	
+
 	@GetMapping("/activetrue")
-	public ResponseEntity<List<EmployeeDto>> findByActiveTrue(){
+	public ResponseEntity<List<EmployeeDto>> findByActiveTrue() {
 		return ResponseEntity.ok(service.findByActiveTrue());
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 }

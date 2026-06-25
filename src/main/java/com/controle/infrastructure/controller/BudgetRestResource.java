@@ -2,9 +2,14 @@ package com.controle.infrastructure.controller;
 
 import static com.controle.infrastructure.controller.RestConstants.PATH_BUDGET;
 
+import org.springframework.data.domain.Pageable;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.controle.entities.Budget;
 import com.controle.infrastructure.dto.BudgetDto;
 import com.controle.infrastructure.dto.SaveBudgetDataDto;
@@ -68,11 +72,11 @@ public class BudgetRestResource {
 	public void deleteBudget(@PathVariable String id) {
 		service.deleteBudget(id);
 	}
-	
+
 	@GetMapping
 	public ResponseEntity<List<BudgetDto>> listAll() {
 
-	//	List<Budget> dtos = service.listAll();
+		// List<Budget> dtos = service.listAll();
 
 		return ResponseEntity.ok(service.listAll());
 		// List<BudgetDto> dtos = budgets.stream().sorted(Comparator.comparing(b ->
@@ -88,44 +92,21 @@ public class BudgetRestResource {
 	// @GetMapping("/employee/{name}")
 	@GetMapping("/employee")
 
-	public ResponseEntity<List<BudgetDto>> findByEmployeeName(@RequestParam String employeeName) {
+	public ResponseEntity<Page<BudgetDto>> findByEmployeeName(@RequestParam String employeeName,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-		// return service.findByEmployeeName(employeeName);
-		////////////////////////////////////////////////
-		// service.findByEmployeeName(employeeName);
+		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").descending());
 
-		// return ResponseEntity.badRequest().build();
-		///////////////////////////////////////////////////////////////////
-		// List<Budget> budgets = service.findByEmployeeName(employeeName);
-
-		// List<BudgetDto> dtos = new ArrayList<>();
-
-		// for (Budget budget : budgets) {
-		// dtos.add(BudgetDto.create(budget));
-		// }
-
-		// return ResponseEntity.ok(dtos);
-		//////////////////////////////////////////////////////////////////////
-
-		//List<BudgetDto> dtos = service.findByEmployeeName(employeeName);
-
-		return ResponseEntity.ok(service.findByEmployeeName(employeeName));
+		return ResponseEntity.ok(service.findByEmployeeName(employeeName, config));
 
 	}
 
 	@GetMapping("/date")
-	public ResponseEntity<List<BudgetDto>> findByServiceDate(@RequestParam LocalDate date) {
+	public ResponseEntity<Page<BudgetDto>> findByServiceDate(@RequestParam LocalDate date,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-//		service.findByDate(date);
-//
-//		return ResponseEntity.badRequest().build();
-//
-//		List<Budget> budgets = service.findByServiceDate(date);
-//		
-//		List<BudgetDto> dtos = budgets.stream().map(BudgetDto::create).toList();
-//		return ResponseEntity.ok(dtos);
-		//List<BudgetDto> dtos = service.findByServiceDate(date);
-		return ResponseEntity.ok(service.findByServiceDate(date));
+		Pageable config = PageRequest.of(page, size, Sort.by("serviceDate").descending());
+		return ResponseEntity.ok(service.findByServiceDate(date, config));
 	}
 
 	// @GetMapping("/company/{companyName}")
