@@ -48,6 +48,11 @@ public class ControlAdvice  {
 			err.setMessage("Verifique os campos obrigatórios. Algum dado foi enviado em branco ou com formato inválido.");
 			err.setPath(request.getRequestURI());
 			
+			String mensagemEspecifica = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+			
+			err.setMessage(mensagemEspecifica); // Agora o Postman vai mostrar o erro exato!
+		    err.setPath(request.getRequestURI());
+		    
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 		}
 		

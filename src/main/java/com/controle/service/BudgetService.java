@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.controle.entities.Budget;
 import com.controle.entities.Employee;
+import com.controle.exception.BudgetCompanyNameBadRequestException;
+import com.controle.exception.BudgetCompanyNameNotFoundException;
 import com.controle.exception.BudgetDateBadRequestException;
 import com.controle.exception.BudgetEmployeeNotFoundException;
 import com.controle.exception.BudgetNotFoundException;
@@ -52,6 +54,8 @@ public class BudgetService {
 		return repository.save(budget);
 
 	}
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
 //	private void addEmployee(Set<String> employeeIds, Budget budget) {
 //	 Set<String> employeeIdsNotNull = Optional.ofNullable(employeeIds).orElseThrow(Set.of());
@@ -65,7 +69,12 @@ public class BudgetService {
 	public Budget loadBudget(String budgetId) {
 		return repository.findById(budgetId).orElseThrow(() -> new BudgetNotFoundException(budgetId));
 	}
+	
+	
+	
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	@Transactional
 	public Budget updateBudget(String id, SaveBudgetDataDto dto) {
 
@@ -81,25 +90,47 @@ public class BudgetService {
 
 		return budget;
 	}
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
+	
+	
+	
 	// deleta tudo do banco
 	@Transactional
 	public void deleteBudget(String id) {
 		Budget budget = loadBudget(id);
 		repository.delete(budget);
 	}
+	
+	
 
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	@Transactional(readOnly = true)
+//	public List<BudgetDto> listAll() {
+//		List<Budget> budgets = repository.findAll();
+//		List<BudgetDto> dtos = budgets.stream()
+//				.sorted(Comparator.comparing(Budget::getCompanyName, String.CASE_INSENSITIVE_ORDER))
+//				.map(BudgetDto::create).toList();
+//
+//		log.info("Lista de todos orçamentos:");
+//		return dtos;
+//	}
 	@Transactional(readOnly = true)
-	public List<BudgetDto> listAll() {
-		List<Budget> budgets = repository.findAll();
-		List<BudgetDto> dtos = budgets.stream()
-				.sorted(Comparator.comparing(Budget::getCompanyName, String.CASE_INSENSITIVE_ORDER))
-				.map(BudgetDto::create).toList();
-
-		log.info("Lista de todos orçamentos:");
-		return dtos;
+	public Page<BudgetDto> findAll(Pageable page) {
+		
+		Page<Budget> budget = repository.findAll(page);
+		
+		log.info("Lista de todas ordem de serviços:");
+		return budget.map(BudgetDto::create);
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	
+	
+	
+	
 	@Transactional
 	public void aproveBudget(String id) {
 
@@ -110,6 +141,8 @@ public class BudgetService {
 
 		budget.setStatus(BudgetStatus.APPROVED);
 	}
+	
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 																																							  //
@@ -130,22 +163,24 @@ public class BudgetService {
 	@Transactional(readOnly = true)																													          //
 	public Page<BudgetDto> findByEmployeeName(String name, Pageable page) { 																				  //
 																																							  //
-		Page<Budget> budget = repository.findByEmployeeName(name, page);																			          //
-		log.info("Lista de orçamntos por nome do funcioário:");																																					  //
-		if (budget.isEmpty()) {																																  //
+																					          //
+		log.info("Lista de orçamntos por nome do funcioário:");																			                      //
+		if (name == null || name.trim().isEmpty()) {																																  //
 			throw new BudgetEmployeeNotFoundException(name);																			                      //
 																																							  //
 		} else { 																																			  //
-			log.info("Ordem De Serviço por funcionário(s): {}", name);														 											  //
+			log.info("Ordem De Serviço funcionário: - {}", name);														 					     		  //
 																												                                     		  //
-		} 																																					  //
+		} 	
+		Page<Budget> budget = repository.findByEmployeeName(name, page);																																				  //
 			return budget.map(BudgetDto::create); 																											  //
 		 																												                            	      //
 	} 																																						  //
 																																							  //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
-//	@Transactional
+
+	//	@Transactional
 //	public List<BudgetDto> findByServiceDate(LocalDate serviceDate) {
 //
 //		List<Budget> budgets = repository.findByServiceDate(serviceDate);
@@ -162,7 +197,7 @@ public class BudgetService {
 		if (serviceDate.isAfter(LocalDate.now())) {
 			throw new BudgetDateBadRequestException(serviceDate);
 		}else {
-			log.info("Ordem De Serviço por data:");
+			log.info("Ordem De Serviço para data: - {}", serviceDate);
 		}
 		
 		// 2. BUSCA NO BANCO DE DADOS
@@ -171,7 +206,7 @@ public class BudgetService {
 		
 		// 3. VALIDAÇÃO DE RESULTADO (Opcional, para o seu 404)
 	    // Se a data for válida, mas não tiver nenhuma OS registrada no dia
-	    if (budget.isEmpty()) {
+	    if (budget == null || budget.isEmpty()) {
 	        // Pode ser a BudgetNotFoundException ou outra de sua preferência
 	        throw new BudgetNotFoundException("Nenhum orçamento encontrado para a data: " + serviceDate); 
 	    }
@@ -181,26 +216,36 @@ public class BudgetService {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	
-//	@Transactional()
-//	public List<Budget> FindByCompanyName(String Companyname) {
-//		return repository.findByCompanyName(Companyname);
+//	
+//	@Transactional(readOnly = true)
+//	public List<BudgetDto> findByCompanyName(String companyName) {
+//		
+//		List<Budget> budgets = repository.findByCompanyName(companyName);
+//		List<BudgetDto> dtos = budgets.stream().sorted(Comparator.comparing(Budget::getCompanyName))
+//				.map(BudgetDto::create).toList();
+//		if (dtos.isEmpty()) {
+//			log.info("Funcionário não existe: {}", companyName);
+//			return dtos;
+//		}
+//		
+//		log.info("Orçamento pelo nome da empresa:");
+//		return dtos;
+//		
 //	}
-
-	// esse foi
 	@Transactional(readOnly = true)
-	public List<BudgetDto> findByCompanyName(String companyName) {
-
-		List<Budget> budgets = repository.findByCompanyName(companyName);
-		List<BudgetDto> dtos = budgets.stream().sorted(Comparator.comparing(Budget::getCompanyName))
-				.map(BudgetDto::create).toList();
-		if (dtos.isEmpty()) {
-			log.info("Funcionário não existe: {}", companyName);
-			return dtos;
+	public Page<BudgetDto> findByCompanyName(String companyName, Pageable page) {
+		if (companyName == null || companyName.trim().isEmpty()) {
+			throw new BudgetCompanyNameBadRequestException(companyName);
 		}
-
-		log.info("Orçamento pelo nome da empresa:");
-		return dtos;
-
+		log.info("Ordem De Serviço por nome da empresa: - {}", companyName);
+		Page<Budget> budget = repository.findByCompanyNameContainingIgnoreCase(companyName, page);
+		
+		if (budget.isEmpty()) {
+			throw new BudgetCompanyNameNotFoundException(companyName);
+		}
+		
+		return budget.map(BudgetDto::create);
 	}
+
 
 }

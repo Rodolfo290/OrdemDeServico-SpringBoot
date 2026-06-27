@@ -74,11 +74,11 @@ public class BudgetRestResource {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<BudgetDto>> listAll() {
+	public ResponseEntity<Page<BudgetDto>> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-		// List<Budget> dtos = service.listAll();
+		Pageable config = PageRequest.of(page, size, Sort.by("companyName").ascending());
 
-		return ResponseEntity.ok(service.listAll());
+		return ResponseEntity.ok(service.findAll(config));
 		// List<BudgetDto> dtos = budgets.stream().sorted(Comparator.comparing(b ->
 		// b.getEmployee().getName(),
 		// String.CASE_INSENSITIVE_ORDER)).map(BudgetDto::create).toList();
@@ -95,7 +95,7 @@ public class BudgetRestResource {
 	public ResponseEntity<Page<BudgetDto>> findByEmployeeName(@RequestParam String employeeName,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").descending());
+		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
 
 		return ResponseEntity.ok(service.findByEmployeeName(employeeName, config));
 
@@ -105,14 +105,17 @@ public class BudgetRestResource {
 	public ResponseEntity<Page<BudgetDto>> findByServiceDate(@RequestParam LocalDate date,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-		Pageable config = PageRequest.of(page, size, Sort.by("serviceDate").descending());
+		Pageable config = PageRequest.of(page, size, Sort.by("serviceDate").ascending());
 		return ResponseEntity.ok(service.findByServiceDate(date, config));
 	}
 
 	// @GetMapping("/company/{companyName}")
 	@GetMapping("/company")
-	public ResponseEntity<List<BudgetDto>> findByCompanyName(@RequestParam String companyName) {
-		return ResponseEntity.ok(service.findByCompanyName(companyName));
+	public ResponseEntity<Page<BudgetDto>> findByCompanyName(@RequestParam String companyName, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+	
+		Pageable config = PageRequest.of(page, size, Sort.by("companyName").ascending());
+		
+		return ResponseEntity.ok(service.findByCompanyName(companyName, config));
 	}
 
 }

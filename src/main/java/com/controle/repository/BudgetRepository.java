@@ -19,11 +19,15 @@ public interface BudgetRepository extends JpaRepository<Budget, String> {
 	Page<Budget> findByEmployeeName(String name, Pageable page);
 	
 	List<Budget> findByServiceDate(LocalDate serviceDate);
-	Page<Budget>findByServiceDate(LocalDate serviceDate, Pageable page);
+	Page<Budget> findByServiceDate(LocalDate serviceDate, Pageable page);
 
+	Page<Budget> findAll(Pageable page);
 	
 	
 	List<Budget> findByCompanyName(String companyName);
-	//List<Budget> listAll();
+	Page<Budget> findByCompanyName(String companyName, Pageable page);
+	
+	//Containing funciona como o LIKE %cometa% do SQL, e o IgnoreCase ignora se a letra é maiúscula ou minúscula
+	Page<Budget> findByCompanyNameContainingIgnoreCase(String companyName, Pageable page);
 
 }

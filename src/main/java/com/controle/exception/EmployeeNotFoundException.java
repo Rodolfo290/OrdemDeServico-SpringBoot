@@ -8,7 +8,7 @@ public class EmployeeNotFoundException extends RequestException {
 
 
 	public EmployeeNotFoundException(String employeeId) {
-		super(HttpStatus.NOT_FOUND, "Funcionário-Não-Encontrado", "Funcionário não encontrado" + employeeId);
+		super(HttpStatus.NOT_FOUND, "Funcionário-Não-Encontrado ", employeeId + " Funcionário não encontrado:" );
 	}
 	
 	

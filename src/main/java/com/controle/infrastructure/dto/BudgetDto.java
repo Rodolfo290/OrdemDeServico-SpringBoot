@@ -3,6 +3,7 @@ package com.controle.infrastructure.dto;
 import java.time.LocalDate;
 
 import com.controle.entities.Budget;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class BudgetDto {
 	private String companyName;
 	private String location;
 	private String vehiclePlate;
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate serviceDate;
 	private String descriptionService;
 	private String status;
