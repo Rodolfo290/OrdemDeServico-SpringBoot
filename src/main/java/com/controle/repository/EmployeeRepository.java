@@ -3,6 +3,8 @@ package com.controle.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,10 +22,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
 	List<Employee> findAllByName(String name);
 
 	List<Employee> findByNameContainingIgnoreCaseAndActiveTrue(String name);
+	Page<Employee> findByNameContainingIgnoreCaseAndActiveTrue(String name, Pageable page);
 
 	List<Employee> findByActiveFalse();
+	Page<Employee>findByActiveFalse(Pageable page);
 
 	List<Employee> findByActiveTrue();
+	Page<Employee> findByActiveTrue(Pageable page);
 //	List<Employee> findByServiceDate(LocalDate serviceDate);
 //	List<Employee> findByCompanyName(String companyName);
 

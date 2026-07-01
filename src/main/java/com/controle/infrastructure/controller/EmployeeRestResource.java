@@ -5,6 +5,10 @@ import static com.controle.infrastructure.controller.RestConstants.PATH_EMPLOYEE
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,20 +98,24 @@ public class EmployeeRestResource {
 	}
 
 	@GetMapping("/{name}/employee")
-	public ResponseEntity<List<EmployeeDto>> loadEmployeeActive(@PathVariable String name) {
-//		service.loadEmployeeActive(name);
-//		return ResponseEntity.noContent().build();
-		return ResponseEntity.ok(service.loadEmployeeActive(name));
+	public ResponseEntity<Page<EmployeeDto>> loadEmployeeActive(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+
+		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		return ResponseEntity.ok(service.loadEmployeeActive(name, config));
 	}
 
 	@GetMapping("/activefalse")
-	public ResponseEntity<List<EmployeeDto>> findByActiveFalse() {
-		return ResponseEntity.ok(service.findByActiveFalse());
+	public ResponseEntity<Page<EmployeeDto>> findByActiveFalse(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		
+		return ResponseEntity.ok(service.findByActiveFalse(config));
 	}
 
 	@GetMapping("/activetrue")
-	public ResponseEntity<List<EmployeeDto>> findByActiveTrue() {
-		return ResponseEntity.ok(service.findByActiveTrue());
+	public ResponseEntity<Page<EmployeeDto>> findByActiveTrue(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		
+		return ResponseEntity.ok(service.findByActiveTrue(config));
 	}
 
 }
