@@ -76,6 +76,7 @@ public class EmployeeService {
 		log.info("Deletado com sucesso:");
 
 	}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
 	@Transactional(readOnly = false)
 	public void deleteEmployee(String id) {
@@ -86,26 +87,11 @@ public class EmployeeService {
 
 	}
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
-//	@Transactional(readOnly = false)
-//	public void deleteEmployee(String id) {
-//		Employee employee = loadEmployee(id);
-//		
-//		
-//		// Removemos o repository.delete(employee);
-//	    // E apenas mudamos o status dele:
-//		
-//		employee.setActive(false);
-//		//repository.save(employee):
-//		log.info("Funcionário inativado com sucesso (Soft Delete): " + employee.getName() + " - " + id);
-//	}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// 
-/// 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	@Transactional(readOnly = false)
 	public void deactivateEmployee(String id) {
 		Employee emp = repository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado:"));
+				.orElseThrow(() -> new EmployeeNotFoundException("Funcionário não encontrado:"));
 
 		emp.setActive(false);
 		log.info("Funcionário inativado com sucesso (Soft Delete): " + emp.getName() + " - " + id);
@@ -114,11 +100,11 @@ public class EmployeeService {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// 
-	@Transactional(readOnly = true) // Como é só listagem, readOnly aumenta a performance
+	@Transactional(readOnly = true) // Como é só listagem = true
 	public Page<EmployeeDto> findByActiveFalse(Pageable page) {
 		// 1. Buscamos no banco apenas quem está com active = false
 		Page<Employee> employee = repository.findByActiveFalse(page);
-
+		log.info("Busca realizada com sucesso para funcionário: ");
 		return employee.map(EmployeeDto::create);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
@@ -127,7 +113,7 @@ public class EmployeeService {
 	public Page<EmployeeDto> findByActiveTrue(Pageable page) {
 
 		Page<Employee> employee = repository.findByActiveTrue(page);
-
+		log.info("Busca realizada com sucesso para funcionário: ");
 		return employee.map(EmployeeDto::create);
 	}
 
@@ -146,43 +132,25 @@ public class EmployeeService {
 		return employee.map(EmployeeDto::create);
 
 	}
-//	public List<EmployeeDto> loadEmployeeActive(String name) {
-////	    // Busca no banco usando a regra que definimos
-////	    List<Employee> listEmployee = repository.findByNameContainingIgnoreCaseAndActiveTrue(name);
-////
-////	    // Converte a lista de entidades para uma lista de DTOs
-////	    return listEmployee.stream()
-////	            .map(EmployeeDto::create)
-////	            .collect(Collectors.toList());
-//		
-//		
-//	}
 
-//	@Transactional(readOnly = false)
-//	public List<Employee> listAll() {
-//		return repository.findAll();
-//	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 	@Transactional(readOnly = true) // Melhor para performance em buscas
-	public List<EmployeeDto> listAll() {
-		return repository.findAll().stream()
-				.sorted(Comparator.comparing(Employee::getName, String.CASE_INSENSITIVE_ORDER)).map(EmployeeDto::create)
-				.toList(); // No Java 17+ pode usar .toList() direto
+	public Page<EmployeeDto> findAll(Pageable page) {
+		Page<Employee> employee = repository.findAll(page);
+		return employee.map(EmployeeDto::create);
 	}
 
 	@Transactional(readOnly = true)
-	public List<EmployeeDto> findAllByName(String name) {
+	public Page<EmployeeDto> findByNameContainingIgnoreCase(String name, Pageable page) {
 
-		List<Employee> emp = repository.findAllByName(name);
-		List<EmployeeDto> dtos = emp.stream().map(EmployeeDto::create).toList();
-
-		if (dtos.isEmpty()) {
-			log.info("Funcionário não existe = " + name);
-			return dtos;
+		if (name != null && !name.trim().isEmpty()) {
+			Page<Employee> employee = repository.findByNameContainingIgnoreCase(name, page);
+	        log.info("Busca realizada com sucesso para funcionário: " + name);
+			return employee.map(EmployeeDto::create);
 		}
-		log.info("Busca realizada com sucesso para funcionário: " + name);
-		return dtos;
+		
+		throw new EmployeeNotFoundException(name);
 
 	}
 

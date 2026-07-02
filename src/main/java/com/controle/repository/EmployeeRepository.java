@@ -14,8 +14,10 @@ import com.controle.entities.Employee;
 public interface EmployeeRepository extends JpaRepository<Employee, String> {
 
 	// Employee findByIdAndDeletedFalse = (String id);
+	Page<Employee> findAll(Pageable page);
 
 	Optional<Employee> findByName(String name);
+	Page<Employee> findByNameContainingIgnoreCase(String name ,Pageable page);
 
 	Optional<Employee> findByEmail(String email);
 

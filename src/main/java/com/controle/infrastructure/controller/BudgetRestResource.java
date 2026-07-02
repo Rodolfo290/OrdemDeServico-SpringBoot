@@ -95,7 +95,7 @@ public class BudgetRestResource {
 	public ResponseEntity<Page<BudgetDto>> findByEmployeeName(@RequestParam String employeeName,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		Pageable config = PageRequest.of(page, size, Sort.by("employee.name").ascending());
 
 		return ResponseEntity.ok(service.findByEmployeeName(employeeName, config));
 

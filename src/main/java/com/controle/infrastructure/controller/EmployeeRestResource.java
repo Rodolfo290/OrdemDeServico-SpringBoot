@@ -83,37 +83,42 @@ public class EmployeeRestResource {
 //	}
 //	
 	@GetMapping
-	public ResponseEntity<List<EmployeeDto>> listAll() {
+	public ResponseEntity<Page<EmployeeDto>> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+		
+		Pageable config = PageRequest.of(page, size, Sort.by("name"));
+		
+		
 		// Ele só pede e entrega. Simples assim.
-		return ResponseEntity.ok(service.listAll());
+		return ResponseEntity.ok(service.findAll(config));
 	}
 
 	@GetMapping("/employee")
-	public ResponseEntity<List<EmployeeDto>> findByEmployeeName(@RequestParam String name) {
+	public ResponseEntity<Page<EmployeeDto>> findByNameContainingIgnoreCase(@RequestParam String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-//		List<Employee> emplyoee = service.findByEmployeeName(employeeName);
-//		List<EmployeeDto> dtos = emplyoee.stream().map(EmployeeDto::create).toList();
-		return ResponseEntity.ok(service.findAllByName(name));
+		Pageable config = PageRequest.of(page, size, Sort.by("name").ascending());
+		
+
+		return ResponseEntity.ok(service.findByNameContainingIgnoreCase(name, config));
 
 	}
 
 	@GetMapping("/{name}/employee")
 	public ResponseEntity<Page<EmployeeDto>> loadEmployeeActive(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		Pageable config = PageRequest.of(page, size, Sort.by("name").ascending());
 		return ResponseEntity.ok(service.loadEmployeeActive(name, config));
 	}
 
 	@GetMapping("/activefalse")
 	public ResponseEntity<Page<EmployeeDto>> findByActiveFalse(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		Pageable config = PageRequest.of(page, size, Sort.by("name").ascending());
 		
 		return ResponseEntity.ok(service.findByActiveFalse(config));
 	}
 
 	@GetMapping("/activetrue")
 	public ResponseEntity<Page<EmployeeDto>> findByActiveTrue(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-		Pageable config = PageRequest.of(page, size, Sort.by("employeeName").ascending());
+		Pageable config = PageRequest.of(page, size, Sort.by("name").ascending());
 		
 		return ResponseEntity.ok(service.findByActiveTrue(config));
 	}
